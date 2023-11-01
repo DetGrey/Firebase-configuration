@@ -28,8 +28,6 @@ const db = getFirestore(app);
 // -------------------------------------------------- CODE BEGINNING
 import { getDocs, collection, addDoc } from "firebase/firestore";
 
-const usersRef = collection(db, "users");
-
 let submit = document.querySelector('#submit');
 submit.addEventListener('click', () => {
     const email = document.querySelector('#email').value;
