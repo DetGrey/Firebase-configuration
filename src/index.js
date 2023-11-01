@@ -26,51 +26,39 @@ const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
 // -------------------------------------------------- CODE BEGINNING
+import { getDocs, collection, addDoc } from "firebase/firestore";
+
+const usersRef = collection(db, "users");
 
 let submit = document.querySelector('#submit');
-
 submit.addEventListener('click', () => {
     const email = document.querySelector('#email').value;
     const name = document.querySelector('#name').value;
     const password = document.querySelector('#password').value;
-    alert(`You have successfully registered\n` + `Email: ${email}\n` + `Name: ${name}\n` + `Password: ${password}`);
+    // alert(`You have successfully registered\n` + `Email: ${email}\n` + `Name: ${name}\n` + `Password: ${password}`);
+
+    addUser(email, name, password);
 });
 
 // -------------------------------------------------- FIREBASE DB
-import { collection, doc, setDoc } from "firebase/firestore";
-
-const citiesRef = collection(db, "cities");
-
-await setDoc(doc(citiesRef, "SF"), {
-    name: "San Francisco", state: "CA", country: "USA",
-    capital: false, population: 860000,
-    regions: ["west_coast", "norcal"] });
-await setDoc(doc(citiesRef, "LA"), {
-    name: "Los Angeles", state: "CA", country: "USA",
-    capital: false, population: 3900000,
-    regions: ["west_coast", "socal"] });
-await setDoc(doc(citiesRef, "DC"), {
-    name: "Washington, D.C.", state: null, country: "USA",
-    capital: true, population: 680000,
-    regions: ["east_coast"] });
-await setDoc(doc(citiesRef, "TOK"), {
-    name: "Tokyo", state: null, country: "Japan",
-    capital: true, population: 9000000,
-    regions: ["kanto", "honshu"] });
-await setDoc(doc(citiesRef, "BJ"), {
-    name: "Beijing", state: null, country: "China",
-    capital: true, population: 21500000,
-    regions: ["jingjinji", "hebei"] });
-
-
-import { getDoc } from "firebase/firestore";
-
-const docRef = doc(db, "cities", "SF");
-const docSnap = await getDoc(docRef);
-
-if (docSnap.exists()) {
-    console.log("Document data:", docSnap.data());
-} else {
-    // docSnap.data() will be undefined in this case
-    console.log("No such document!");
+async function addUser(email, name, password) {
+    try {
+        const docRef = await addDoc(collection(db, "users"), {
+            auth: false,
+            email: email,
+            name: name,
+            password: password
+        });
+        console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+        console.error("Error adding document: ", e);
+    }
 }
+
+const querySnapshot = await getDocs(collection(db, "users"));
+querySnapshot.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    console.log(doc.id, " => ", doc.data());
+    const registeredUsers = document.querySelector('#registered-users');
+    registeredUsers.innerHTML += `<li>${doc.data().name}</li>`;
+});
